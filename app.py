@@ -43,8 +43,7 @@ def read_file(uploaded_file):
 
 # --- 页面 UI ---
 
-st.title("📦 提货计划 - 自动分发系统 (时间升序优化版)")
-st.markdown(f"**当前操作员**：{st.session_state.get('user_name', '曾倩文')} | **逻辑**：保留原始行 + 字段A-Q排序 + 发货时间升序")
+st.title("📦 采购- 供应商自动分类")
 
 col1, col2 = st.columns(2)
 with col1:
