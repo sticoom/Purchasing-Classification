@@ -40,8 +40,7 @@ def read_file(uploaded_file):
 
 # --- 页面 UI ---
 
-st.title("📦 提货计划 - 供应商自动分发系统 (Streamlit版)")
-st.info("逻辑确认：保留提货计划表所有行；按供应商拆分文件；字段顺序严格按 A-Q 排列。")
+st.title("📦 采购 - 供应商自动分类系统")
 
 col1, col2 = st.columns(2)
 with col1:
