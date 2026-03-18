@@ -3,63 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>跨境电商提货计划匹配系统 - 增强版</title>
+    <title>提货计划处理系统 - 字段严格排序版</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
-        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: #f0f2f5; padding: 40px; color: #333; }
-        .card { max-width: 850px; margin: auto; background: #fff; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
-        h2 { color: #1a73e8; margin-top: 0; border-left: 5px solid #1a73e8; padding-left: 15px; }
-        .file-group { background: #f8f9fa; border: 2px dashed #d1d5db; padding: 25px; border-radius: 10px; margin: 25px 0; }
-        .file-input-wrapper { margin-bottom: 20px; }
-        label { display: block; font-weight: 600; margin-bottom: 10px; color: #444; }
-        input[type="file"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: white; }
-        button { background: #1a73e8; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; }
-        button:hover { background: #1557b0; transform: translateY(-1px); }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        #status { margin-top: 25px; padding: 15px; border-radius: 8px; display: none; }
-        .success { background: #e6f4ea; color: #1e7e34; border: 1px solid #c3e6cb; }
-        .error { background: #fce8e6; color: #d93025; border: 1px solid #f5c6cb; }
-        .rules-note { font-size: 13px; color: #666; margin-top: 15px; line-height: 1.5; }
+        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: #f8f9fa; padding: 40px; color: #2c3e50; }
+        .card { max-width: 900px; margin: auto; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.05); }
+        h2 { color: #1a73e8; display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
+        .file-box { background: #fdfdfd; border: 2px dashed #e0e0e0; padding: 30px; border-radius: 10px; margin-bottom: 25px; }
+        .input-item { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; color: #555; }
+        input[type="file"] { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+        button { background: #1a73e8; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; }
+        button:hover { background: #1557b0; box-shadow: 0 4px 12px rgba(26,115,232,0.3); }
+        button:disabled { background: #bdc3c7; cursor: not-allowed; }
+        #status { margin-top: 25px; padding: 15px; border-radius: 8px; display: none; font-size: 14px; }
+        .success { background: #e6f4ea; color: #1e7e34; }
+        .error { background: #fce8e6; color: #d93025; }
+        .list-info { font-size: 12px; color: #7f8c8d; margin-top: 20px; background: #f1f3f4; padding: 15px; border-radius: 6px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>🚀 提货计划 - 供应商自动分发系统</h2>
-    <div class="rules-note">
-        <strong>核心逻辑确认：</strong><br>
-        • <b>不聚合逻辑</b>：提货计划表中的每一行都会保留，绝不合并 SKU。<br>
-        • <b>唯一供应商</b>：若采购表中某 SKU 对应多个记录但厂家名一致，视为单一供应商。
-    </div>
-
-    <div class="file-group">
-        <div class="file-input-wrapper">
-            <label>1. 提货计划表 (Master)</label>
+    <h2>📦 供应商分发工具</h2>
+    
+    <div class="file-box">
+        <div class="input-item">
+            <label>1. 提货计划表 (主数据)</label>
             <input type="file" id="planFile" accept=".xlsx, .xls, .csv">
         </div>
-        <div class="file-input-wrapper">
-            <label>2. 采购订单追踪表 (Matching)</label>
+        <div class="input-item">
+            <label>2. 采购订单追踪表 (匹配库)</label>
             <input type="file" id="orderFile" accept=".xlsx, .xls, .csv">
         </div>
     </div>
 
-    <button id="runBtn">分析数据并导出 ZIP 包</button>
+    <button id="runBtn">生成并下载结果 (ZIP)</button>
+
     <div id="status"></div>
+
+    <div class="list-info">
+        <strong>输出字段顺序（严格按截图排列）：</strong><br>
+        单据编号 → 版本单号 → 国家 → SKU → SKU名称 → FNSKU → 供应商 → 装箱数 → 订单状态 → 提货数量 → 已关联送货数量 → 提货未入库数量 → 已入库数量 → 关联送货单 → 提货状态 → 计划备注 → 计划发货时间
+    </div>
 </div>
 
 <script>
+    // 定义截图中的目标字段和顺序
+    const TARGET_HEADERS = [
+        "单据编号", "版本单号", "国家", "SKU", "SKU名称", 
+        "FNSKU", "供应商", "装箱数", "订单状态", "提货数量", 
+        "已关联送货数量", "提货未入库数量", "已入库数量", 
+        "关联送货单", "提货状态", "计划备注", "计划发货时间"
+    ];
+
     const runBtn = document.getElementById('runBtn');
     const statusBox = document.getElementById('status');
 
-    function showStatus(msg, isError = false) {
+    function notify(msg, type = 'success') {
         statusBox.style.display = "block";
-        statusBox.className = isError ? "error" : "success";
+        statusBox.className = type === 'success' ? "success" : "error";
         statusBox.innerHTML = msg;
     }
 
-    // 日期计算逻辑：倒推5天
-    function getOffsetDate(version) {
+    function calculateDate(version) {
         if (!version || version.length < 10) return "❌";
         try {
             const y = parseInt("20" + version.substring(4, 6));
@@ -84,86 +92,96 @@
         });
     }
 
+    // 将原始行数据映射为仅包含目标字段的有序对象
+    function mapToTargetFields(row, supplierName, planDate) {
+        const newRow = {};
+        TARGET_HEADERS.forEach(header => {
+            if (header === "供应商") {
+                newRow[header] = supplierName;
+            } else if (header === "计划发货时间") {
+                newRow[header] = planDate;
+            } else {
+                newRow[header] = row[header] || ""; // 直接从原行提取
+            }
+        });
+        return newRow;
+    }
+
     runBtn.addEventListener('click', async () => {
         const f1 = document.getElementById('planFile').files[0];
         const f2 = document.getElementById('orderFile').files[0];
 
-        if(!f1 || !f2) return alert("请先上传两个文件！");
+        if(!f1 || !f2) return alert("请先上传两份报表");
 
         runBtn.disabled = true;
-        showStatus("⏳ 正在进行精确匹配...");
+        notify("⏳ 正在根据 SKU 匹配供应商并调整字段顺序...");
 
         try {
             const planRows = await parseExcel(f1);
             const orderRows = await parseExcel(f2);
 
-            // 第一步：预处理采购表，获取 SKU 对应的唯一供应商集合
+            // 建立 SKU -> 供应商 Map (考虑去重)
             const skuToSuppliers = new Map();
             orderRows.forEach(r => {
-                const s = String(r['SKU'] || '').trim();
-                const v = String(r['供应商'] || '').trim();
-                if(s && v) {
-                    if(!skuToSuppliers.has(s)) skuToSuppliers.set(s, new Set());
-                    skuToSuppliers.get(s).add(v);
+                const sku = String(r['SKU'] || '').trim();
+                const sup = String(r['供应商'] || '').trim();
+                if(sku && sup) {
+                    if(!skuToSuppliers.has(sku)) skuToSuppliers.set(sku, new Set());
+                    skuToSuppliers.get(sku).add(sup);
                 }
             });
 
-            const supplierFiles = {}; // 存放 1对1 数据
-            const multiList = [];      // 存放多供应商异常
-            const noMatchList = [];    // 存放无匹配异常
+            const supplierGroups = {};
+            const multiList = [];
+            const noMatchList = [];
 
-            // 第二步：遍历提货计划表（不改变行数，不聚合）
             planRows.forEach(row => {
                 const sku = String(row['SKU'] || '').trim();
                 const supSet = skuToSuppliers.get(sku);
-                
-                // 增加计算列
-                row['计划发货时间'] = getOffsetDate(row['版本单号']);
+                const planDate = calculateDate(row['版本单号']);
 
                 if (!supSet || supSet.size === 0) {
-                    row['供应商'] = "该SKU已无在途订单";
-                    noMatchList.push({...row});
+                    noMatchList.push(mapToTargetFields(row, "该SKU已无在途订单", planDate));
                 } else if (supSet.size > 1) {
-                    row['供应商'] = Array.from(supSet).join('、');
-                    multiList.push({...row});
+                    const combinedName = Array.from(supSet).join('、');
+                    multiList.push(mapToTargetFields(row, combinedName, planDate));
                 } else {
                     const supName = Array.from(supSet)[0];
-                    row['供应商'] = supName;
-                    if (!supplierFiles[supName]) supplierFiles[supName] = [];
-                    // 这里直接 push 原始行，确保了提货计划表有多少行，结果里就有多少行
-                    supplierFiles[supName].push({...row});
+                    if (!supplierGroups[supName]) supplierGroups[supName] = [];
+                    supplierGroups[supName].push(mapToTargetFields(row, supName, planDate));
                 }
             });
 
-            // 第三步：生成文件
+            // 打包
             const zip = new JSZip();
             
-            // 供应商独立文件
-            Object.keys(supplierFiles).forEach(sName => {
-                const ws = XLSX.utils.json_to_sheet(supplierFiles[sName]);
+            // 正常分发文件
+            Object.keys(supplierGroups).forEach(name => {
+                const ws = XLSX.utils.json_to_sheet(supplierGroups[name], { header: TARGET_HEADERS });
                 const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "数据清单");
+                XLSX.utils.book_append_sheet(wb, ws, "提货明细");
                 const out = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
-                zip.file(`${sName}.xlsx`, out);
+                zip.file(`${name}.xlsx`, out);
             });
 
-            // 异常文件
+            // 异常汇总文件
             const errWb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(errWb, XLSX.utils.json_to_sheet(multiList), "注意⚠️存在多个供应商");
-            XLSX.utils.book_append_sheet(errWb, XLSX.utils.json_to_sheet(noMatchList), "该SKU已无在途订单");
+            if(multiList.length) XLSX.utils.book_append_sheet(errWb, XLSX.utils.json_to_sheet(multiList, { header: TARGET_HEADERS }), "注意⚠️多个供应商");
+            if(noMatchList.length) XLSX.utils.book_append_sheet(errWb, XLSX.utils.json_to_sheet(noMatchList, { header: TARGET_HEADERS }), "未匹配SKU");
+            
             const errOut = XLSX.write(errWb, { type: 'array', bookType: 'xlsx' });
-            zip.file("异常情况汇总.xlsx", errOut);
+            zip.file("异常数据汇总.xlsx", errOut);
 
             const blob = await zip.generateAsync({ type: "blob" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `提货处理结果_${new Date().toISOString().slice(0,10)}.zip`;
+            a.download = `提货计划结果_${new Date().toISOString().slice(0,10)}.zip`;
             a.click();
 
-            showStatus("✅ 匹配完成！所有原始行已保留并按供应商分发。");
+            notify("✅ 处理完毕！字段已按照 A-Q 列顺序排列，请查看下载的 ZIP 包。");
         } catch (e) {
-            showStatus("❌ 发生错误：" + e.message, true);
+            notify("❌ 出错了：" + e.message, 'error');
         } finally {
             runBtn.disabled = false;
         }
