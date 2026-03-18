@@ -34,8 +34,8 @@ def read_file(uploaded_file):
 
 # --- 页面 UI ---
 
-st.title("📦 提货计划 - 自动分发系统 (全功能增强版)")
-st.info("当前逻辑：1. 过滤掉未入库数量为0的行 | 2. 按发货时间升序 | 3. 严格字段排序 A-Q")
+st.title("📦 采购 - 供应商自动分发系统")
+
 
 col1, col2 = st.columns(2)
 with col1:
@@ -51,7 +51,7 @@ TARGET_HEADERS = [
     "关联送货单", "提货状态", "计划备注", "计划发货时间"
 ]
 
-if st.button("开始执行处理", disabled=not (plan_file and order_file)):
+if st.button("开始处理", disabled=not (plan_file and order_file)):
     try:
         with st.spinner("正在执行前置筛选、日期计算与全局排序..."):
             # 1. 加载数据
