@@ -5,7 +5,7 @@ import io
 import zipfile
 
 # 设置页面配置
-st.set_page_config(page_title="跨境电商提货计划处理系统", layout="wide")
+st.set_page_config(page_title="供应商提货分类系统", layout="wide")
 
 # --- 核心逻辑函数 ---
 
